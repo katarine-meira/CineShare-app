@@ -1,9 +1,23 @@
 const routes = [
   {
     path: '/',
+    redirect: '/login' //quando abrir a raiz, vai direto pro login
+  },
+
+  {
+    path: '/home',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue') }
+      { path: '', component: () => import('pages/HomePage.vue') }, //aqui entra a home
+      { path: '/comunidade', component: () => import('pages/ComunidadePage.vue') }
+    ]
+  },
+
+  {
+    path: '/login',
+    component: () => import('layouts/AuthLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/LoginPage.vue') },
     ]
   },
 
