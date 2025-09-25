@@ -1,17 +1,17 @@
 <template>
     <div>
     <q-header>
-      <q-toolbar class="bg-black text-white" id="nav">
-        <!-- Logo como link -->
-        <!-- <q-item clickable tag="router-link" to="/home" class="router_logo">
-          <img :src="logo" :alt="alt" id="logo">
-        </q-item> -->
-
-        <!-- Links -->
+      <q-toolbar class="bg-dark text-white" id="nav">
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
+        <!-- <q-item clickable tag="router-link" to="/home" class="router_logo">
+          <img src="/src/assets/login2.png" id="logo">
+        </q-item> -->
         <q-toolbar-title>CineShare</q-toolbar-title>
-        <router-link to="/login" id="links">Login</router-link>
-        <router-link to="/home" id="links">Home</router-link>
+        
+        <q-btn @click="logout()" id="links">
+          <q-icon name="logout" />
+          Sair
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -26,7 +26,7 @@
         <q-scroll-area class="fit">
           <q-list>
             <template v-for="(menuItem, index) in menuList" :key="index">
-              <q-item clickable :active="menuItem.label === 'Home'" v-ripple :to="menuItem.link">
+              <q-item clickable :active="menuItem.label === 'Home'" v-ripple :to="menuItem.link" :class="menuItem.class">
                 <q-item-section avatar>
                   <q-icon :name="menuItem.icon" />
                 </q-item-section>
@@ -45,6 +45,12 @@
 
 <script setup>
   import { ref } from 'vue'
+  import {logoutUser} from "src/services/authServices";
+  import { useQuasar } from "quasar";
+  import { useRouter } from "vue-router";
+
+  const $q = useQuasar()
+  const router = useRouter();
   const drawer = ref(false)
 
   const menuList = [
@@ -90,8 +96,36 @@
     separator: false,
     link: ''
   },
+  {
+    icon: 'logout',
+    label: 'Sair',
+    separator: false,
+    link: '',
+    class: 'absolute-bottom'
+  },
   
 ]
+
+async function logout() {
+  try{
+    await logoutUser()
+    $q.notify({
+      message: "Logout realizado com sucesso!",
+      icon: 'logout',
+      color: 'primary',
+      textColor: 'white'
+    })
+    router.push("/login");
+  }
+  catch(error){
+    $q.notify({
+      message: "Erro ao fazer logout" + error.message,
+      icon: 'warning',
+      color: 'primary',
+      textColor: 'white'
+    })
+  }
+}
 
 </script>
 
@@ -106,11 +140,10 @@
         margin-left: 0;
     }
     #logo {
-        width: 40px;
-        height: 40px;
+        width: 80px;
+        height: 80px;
     }
     #links {
-        color: #fcba03;
         text-decoration: none;
         margin: 12px;
     }

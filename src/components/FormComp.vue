@@ -4,7 +4,7 @@
             <q-card v-bind:style="$q.screen.lt.sm ? {'width': '80%'} : {'width': '50%'}">
                 <q-card-section>
                     <q-avatar size="103px" class="absolute-center shadow-10">
-                        <img src="/src/assets/avatar.png" alt="avatar">
+                        <img src="img/avatar.png" alt="avatar">
                     </q-avatar>
                 </q-card-section>
                 <q-card-section>
@@ -17,22 +17,29 @@
                     </div>
                 </q-card-section>
                 <q-card-section>
-                    <q-form class="q-gutter-md">
+                    <q-form class="q-gutter-md" ref="formRef" @submit.prevent="onSubmit">
                         <!-- fomulário de login -->
-                        <q-input v-model="email" label="Email" v-show="!mostrar_info">
+                        <q-input v-model="email" label="Email" v-if="!mostrar_info" 
+                        :rules="[ val => val && val.length > 0 || 'Digite seu email.']" lazy-rules>
                         </q-input>
-                        <q-input v-model="senha" label="Senha" type="password" v-show="!mostrar_info">
+                        <q-input v-model="senha" label="Senha" type="password" v-if="!mostrar_info"
+                        :rules="[ val => val && val.length > 0 || 'Digite sua senha.']" lazy-rules>
                         </q-input>
                         <!-- fomulário de cadastro -->
-                        <q-input v-model="nome_register" v-show="mostrar_info" label="Nome">
+                        <q-input v-model="nome_register" v-if="mostrar_info" label="Nome"
+                        :rules="[ val => val && val.length > 0 || 'Digite seu nome.']" lazy-rules>
                         </q-input>
-                        <q-input v-model="email_register" label="Email" v-show="mostrar_info">
+                        <q-input v-model="email_register" label="Email" v-if="mostrar_info"
+                        :rules="[ val => val && val.length > 0 || 'Digite seu email.']" lazy-rules>
                         </q-input>
-                        <q-input v-model="senha_register" label="Senha" type="password" v-show="mostrar_info">
+                        <q-input v-model="senha_register" label="Senha" type="password" v-if="mostrar_info"
+                        :rules="[ val => val && val.length > 0 || 'Escolha uma senha.',
+                            val => val.length >= 6 || 'Mínimo 6 dígitos.'
+                        ]" lazy-rules>
                         </q-input>
                         <div>
-                            <q-btn class="full-width" color="primary" rounded v-show="!mostrar_info" @click="login">Login</q-btn>
-                            <q-btn class="full-width" color="primary" rounded v-show="mostrar_info" @click="register">Cadastrar</q-btn>
+                            <q-btn class="full-width" color="primary" rounded v-show="!mostrar_info" type="submit" >Login</q-btn>
+                            <q-btn class="full-width" color="primary" rounded v-show="mostrar_info" type="submit" >Cadastrar</q-btn>
                             <div class="text-center q-mt-sm q-gutter-lg">
                                 <!-- <span v-model="mostrar_info" class="text-grey-8" to="/register">Esqueceu a senha?</span> -->
                                 <span class="text-grey-8 cursor-pointer" @click="showInfo">{{texto_botao_register}}</span>
@@ -62,11 +69,10 @@
 
     const router = useRouter();
     
-
     const mostrar_info = ref(false)
     const texto_botao_register = ref('Criar conta')
     const texto_info = ref('Login')
-
+    const formRef = ref(null)
 
     function showInfo(){
         mostrar_info.value = !mostrar_info.value
@@ -80,31 +86,59 @@
         }
     }
 
+    async function onSubmit(){
+        const valid = await formRef.value.validate()
+        if (!valid) return // se não for válido, para aqui
+
+        if(!mostrar_info.value){
+            await login()
+        }
+        else{
+            await register()
+        }
+    }
+
     async function login(){
-        try{
+        try{ 
             await loginUser(email.value, senha.value);
             $q.notify({
                 message: "Login realizado com sucesso!",
-                color: 'purple' 
+                icon: 'login',
+                color: 'primary',
+                textColor: 'white'
             })
             router.push("/home");
         }
-        catch(err){
-            alert("Erro ao logar: " + err.message);
+        catch{
+            $q.notify({
+                message: "Email ou senha incorretos!",
+                icon: 'warning',
+                color: 'primary',
+                textColor: 'white'
+            })
         }
     }
 
     async function register() {
         try{
-            const cred = await registerUser(email_register.value, senha_register.value);
-            alert("Usuário cadastrado com sucesso: " + cred.user.email);
+            await registerUser(email_register.value, senha_register.value);
+            $q.notify({
+                message: "Usuário cadastrado com sucesso!",
+                icon: 'check',
+                color: 'primary',
+                textColor: 'white'
+            })
             router.push("/home");
         }
-        catch (err) {
-            alert("Erro ao cadastrar: " + err.message);
+        catch{
+            $q.notify({
+                message: "Email ou senha incorretos!",
+                icon: 'warning',
+                color: 'primary',
+                textColor: 'white'
+            })
         }
     }
-    
 
 </script>
 

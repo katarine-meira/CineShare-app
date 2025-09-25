@@ -1,8 +1,8 @@
 <template>
-        <img src="/src/assets/wave.png" class="wave" alt="login-wave">
+        <img src="img/wave.png" class="wave" alt="login-wave">
         <div class="row" style="height: 90vh">
             <div class="col-0 col-md-6 flex justify-center content-center">
-                <img src="/src/assets/login.png" class="responsive" alt="login-image">
+                <img src="img/login.png" class="responsive tamanho" alt="login-image">
             </div>
             <form-comp/>
         </div>
@@ -23,5 +23,7 @@ import FormComp from 'src/components/FormComp.vue';
         bottom: 0;
         z-index: -1;
     }
+
+    
     
 </style>
