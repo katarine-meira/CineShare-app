@@ -10,7 +10,7 @@
       @mouseenter="autoplay = false"
       @mouseleave="autoplay = true"
     >
-      <q-carousel-slide :name="1"  img-src="img/carousel/1.png">
+      <q-carousel-slide :name="1"  img-src="img/carousel/4.png">
         <div class="absolute-bottom custom-caption column items-center text-white">
           <div class="text-h2">Salve filmes</div>
           <div class="text-subtitle1">Encontre filmes para assistir ou salve os assistidos</div>

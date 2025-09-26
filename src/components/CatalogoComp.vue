@@ -26,12 +26,19 @@
 
 <script setup>
 import axios from "axios";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch} from "vue";
     const movies = ref([]);
     const totalPages = ref(1);
     const  page = ref(1);
     const bannedLanguages = ["ja", "ko", "zh", "th", "hi"];
+
+    const props = defineProps({
+        filtro: String
+    })
+
     function getMovies(pageNumber = 1) {
+        // e atualiza a página atual que está sendo carregada
+        page.value = pageNumber;
         axios({
             method: 'get',
             url: 'https://api.themoviedb.org/3/discover/movie',
@@ -49,18 +56,59 @@ import { ref, onMounted, watch } from "vue";
                 return !bannedLanguages.includes(movie.original_language);
             });
             totalPages.value = response.data.total_pages;
-            console.log("Pagina: ", response.data.page, "Filmes:", response.data.results);
-            
+            // console.log("Pagina: ", response.data.page, "Filmes:", response.data.results);
         })
     }
+
+    function searchMovies(query, pageNumber = 1) {
+        page.value = pageNumber;
+        
+        axios({
+            method: 'get',
+            url: 'https://api.themoviedb.org/3/search/movie',
+            params: {
+                api_key: 'd9dea8a752f1adc085c7fc18b974f061',
+                language: 'pt-BR',
+                query: query, // A API de busca usa 'query'
+                page: pageNumber,
+                include_adult: false,
+            }
+        }).then(response => {
+            movies.value = response.data.results.filter(movie => {
+                return !bannedLanguages.includes(movie.original_language);
+            });
+            totalPages.value = response.data.total_pages;
+        }).catch(error => {
+             console.error("Erro na busca de filmes:", error);
+             movies.value = []; // Limpa a lista em caso de erro
+        });
+    }
+
     onMounted(() => {
         getMovies(page.value);
     });
     //observa a variavel "page" que é reativa(ref) sempre que mudar a função é chamada
     //o newPage recebe o novo valor e atualiza a função getMovies
     watch(page, (newPage) => {
-        getMovies(newPage);
+        // Decide se deve buscar ou usar o discover
+        if (props.filtro) {
+            searchMovies(props.filtro, newPage);
+        } else {
+            getMovies(newPage);
+        }
     });
+    
+    // Observa o 'filtro' (termo de busca) para disparar a busca na API
+    watch(() => props.filtro, (newFiltro) => {
+        if (newFiltro) {
+            // Se houver um termo, busca na API e volta para a página 1
+            searchMovies(newFiltro, 1);
+        } else {
+            // Se o termo for apagado, volta para a lista de discover inicial, na página 1
+            getMovies(1);
+        }
+    });
+
 </script>
     
 <style scoped>
